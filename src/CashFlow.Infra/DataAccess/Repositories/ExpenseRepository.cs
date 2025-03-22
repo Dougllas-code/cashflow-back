@@ -12,9 +12,9 @@ namespace CashFlow.Infra.DataAccess.Repositories
             _dbContext = dbContext;
         }
 
-        public void Add(Expense expense)
+        public async Task Add(Expense expense)
         {
-            _dbContext.Expenses.Add(expense);
+            await _dbContext.Expenses.AddAsync(expense);
         }
     }
 }

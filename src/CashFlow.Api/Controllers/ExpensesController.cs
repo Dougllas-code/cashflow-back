@@ -14,12 +14,12 @@ namespace CashFlow.Api.Controllers
         [ProducesResponseType(typeof(RegisterExpenseResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorsResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorsResponse), StatusCodes.Status500InternalServerError)]
-        public IActionResult Register(
+        public async Task<IActionResult> Register(
             [FromServices] IRegisterExpenseUseCase useCase,
             [FromBody] RegisterExpenseRequest request
         )
         {
-            var response = useCase.Execute(request);
+            var response = await useCase.Execute(request);
             return Created(string.Empty, response);
         }
     }

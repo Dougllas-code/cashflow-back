@@ -18,7 +18,7 @@ namespace CashFlow.Application.UseCases.Expenses.Register
             _unitOfWork = unitOfWork;
         }
 
-        public RegisterExpenseResponse Execute(RegisterExpenseRequest request)
+        public async Task<RegisterExpenseResponse> Execute(RegisterExpenseRequest request)
         {
             ValidateRequest(request);
 
@@ -31,8 +31,8 @@ namespace CashFlow.Application.UseCases.Expenses.Register
                 PaymentType = (Domain.Enums.PaymentType)request.PaymentType
             };
 
-            _expenseRepository.Add(entity);
-            _unitOfWork.Commit();
+            await _expenseRepository.Add(entity);
+            await _unitOfWork.Commit();
 
             return new RegisterExpenseResponse(request.Title);
         }
