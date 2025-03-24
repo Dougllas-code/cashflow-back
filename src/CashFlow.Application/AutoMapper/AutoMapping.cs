@@ -22,6 +22,7 @@ namespace CashFlow.Application.AutoMapper
         {
             CreateMap<Expense, RegisterExpenseResponse>();
             CreateMap<Expense, ExpenseShortResponse>();
+            CreateMap<Expense, ExpenseResponse>();
         }   
     }
 }
