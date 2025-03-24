@@ -4,7 +4,7 @@
     {
         public List<string> Messages { get; }
 
-        public ErrorOnValidationException(List<string> messages)
+        public ErrorOnValidationException(List<string> messages) : base(string.Empty)
         {
             Messages = messages;
         }
