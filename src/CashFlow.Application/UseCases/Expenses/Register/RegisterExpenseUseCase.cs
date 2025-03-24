@@ -11,35 +11,35 @@ namespace CashFlow.Application.UseCases.Expenses.Register
     public class RegisterExpenseUseCase : IRegisterExpenseUseCase
     {
 
-        private readonly IExpensesWriteOnlyRepository _expenseRepository;
+        private readonly IExpensesWriteOnlyRepository _repository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
         public RegisterExpenseUseCase(
-            IExpensesWriteOnlyRepository expenseRepository, 
+            IExpensesWriteOnlyRepository repository, 
             IUnitOfWork unitOfWork,
             IMapper mapper)
         {
-            _expenseRepository = expenseRepository;
+            _repository = repository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
-        public async Task<RegisterExpenseResponse> Execute(RegisterExpenseRequest request)
+        public async Task<RegisterExpenseResponse> Execute(ExpenseRequest request)
         {
             ValidateRequest(request);
 
             var entity = _mapper.Map<Expense>(request);
 
-            await _expenseRepository.Add(entity);
+            await _repository.Add(entity);
             await _unitOfWork.Commit();
 
             return _mapper.Map<RegisterExpenseResponse>(entity);
         }
 
-        private static void ValidateRequest(RegisterExpenseRequest request)
+        private static void ValidateRequest(ExpenseRequest request)
         {
-            var result = new RegisterExpenseValidator().Validate(request);
+            var result = new ExpenseValidator().Validate(request);
             if (!result.IsValid)
             {
                 var errorMessages = result.Errors.Select(error => error.ErrorMessage).ToList();

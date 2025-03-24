@@ -8,20 +8,20 @@ namespace CashFlow.Application.UseCases.Expenses.GetById
 {
     public class GetByIdUseCase : IGetByIdUseCase
     {
-        private readonly IExpensesReadOnlyRepository _expensesRepository;
+        private readonly IExpensesReadOnlyRepository _repository;
         private readonly IMapper _mapper;
 
         public GetByIdUseCase(
-            IExpensesReadOnlyRepository expensesRepository,
+            IExpensesReadOnlyRepository repository,
             IMapper mapper)
         {
-            _expensesRepository = expensesRepository;
+            _repository = repository;
             _mapper = mapper;
         }
 
         public async Task<ExpenseResponse> Execute(long id)
         {
-            var result = await _expensesRepository.GetById(id);
+            var result = await _repository.GetById(id);
 
             if(result is null)
             {
