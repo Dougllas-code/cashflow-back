@@ -2,6 +2,7 @@
 using CashFlow.Application.UseCases.Expenses.GetAll;
 using CashFlow.Application.UseCases.Expenses.GetById;
 using CashFlow.Application.UseCases.Expenses.Register;
+using CashFlow.Application.UseCases.Expenses.Update;
 using CashFlow.Communication.Requests;
 using CashFlow.Communication.Responses;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ namespace CashFlow.Api.Controllers
         [ProducesResponseType(typeof(ErrorsResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Register(
             [FromServices] IRegisterExpenseUseCase useCase,
-            [FromBody] RegisterExpenseRequest request
+            [FromBody] ExpenseRequest request
         )
         {
             var response = await useCase.Execute(request);
@@ -66,6 +67,22 @@ namespace CashFlow.Api.Controllers
         {
             await useCase.Execute(id);
 
+            return NoContent();
+        }
+
+        [HttpPut]
+        [Route("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ErrorsResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorsResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Update(
+            [FromServices] IUpdateExpenseUseCase useCase,
+            [FromRoute] long id,
+            [FromBody] ExpenseRequest request
+        )
+        {
+            await useCase.Execute(id, request);
+          
             return NoContent();
         }
     }
