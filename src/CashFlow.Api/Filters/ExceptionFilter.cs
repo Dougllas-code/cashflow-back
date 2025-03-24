@@ -22,27 +22,11 @@ namespace CashFlow.Api.Filters
 
         private static void HandleProjectException(ExceptionContext context)
         {
-            if (context.Exception is ErrorOnValidationException errorOnValidationException)
-            {
-                var response = new ErrorsResponse(errorOnValidationException.Messages);
+            var cashFlowException = (CashFlowException)context.Exception;
+            var response = new ErrorsResponse(cashFlowException.GetErrors());
 
-                context.HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-                context.Result = new BadRequestObjectResult(response);
-            }
-            else if (context.Exception is NotFoundException notFoundException)
-            {
-                var response = new ErrorsResponse(notFoundException.Message);
-
-                context.HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-                context.Result = new NotFoundObjectResult(response);
-            }
-            else
-            {
-                var response = new ErrorsResponse(context.Exception.Message);
-
-                context.HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-                context.Result = new BadRequestObjectResult(response);
-            }
+            context.HttpContext.Response.StatusCode = cashFlowException.StatusCode;
+            context.Result = new ObjectResult(response);
         }
 
         private static void ThrowUnkowError(ExceptionContext context)
