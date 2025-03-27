@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using CashFlow.Communication.Requests;
-using CashFlow.Domain.Entities;
 using CashFlow.Domain.Repositories;
 using CashFlow.Domain.Repositories.Expenses;
 using CashFlow.Exception;
@@ -42,7 +41,7 @@ namespace CashFlow.Application.UseCases.Expenses.Update
             await _unitOfWork.Commit();
         }
 
-        private void ValidateRequest(ExpenseRequest request)
+        private static void ValidateRequest(ExpenseRequest request)
         {
             var result = new ExpenseValidator().Validate(request);
             if (!result.IsValid)

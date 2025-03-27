@@ -1,13 +1,13 @@
-﻿using CashFlow.Domain.Enums;
+﻿using CashFlow.Domain.Extensions;
 using CashFlow.Domain.Repositories.Expenses;
 using CashFlow.Domain.Resources.Report;
 using ClosedXML.Excel;
 
-namespace CashFlow.Application.UseCases.Report.Excel
+namespace CashFlow.Application.UseCases.Expenses.Report.Excel
 {
     public class GenerateExpensesReportExcelUseCase : IGenerateExpensesReportExcelUseCase
     {
-        private const string CURRENCY_SYMBOL = "R$ ";
+        private const string CURRENCY_SYMBOL = "€";
         private readonly IExpensesReadOnlyRepository _repository;
 
         public GenerateExpensesReportExcelUseCase(IExpensesReadOnlyRepository repository)
@@ -35,7 +35,7 @@ namespace CashFlow.Application.UseCases.Report.Excel
             {
                 worksheet.Cell($"A{row}").Value = expense.Title;
                 worksheet.Cell($"B{row}").Value = expense.Date;
-                worksheet.Cell($"C{row}").Value = ConvertPaymentType(expense.PaymentType);
+                worksheet.Cell($"C{row}").Value = expense.PaymentType.PaymentTypeToString();
 
                 worksheet.Cell($"D{row}").Value = expense.Amount;
                 worksheet.Cell($"D{row}").Style.NumberFormat.Format = $"-{CURRENCY_SYMBOL} #,##0.00";
@@ -53,19 +53,7 @@ namespace CashFlow.Application.UseCases.Report.Excel
             return file.ToArray();
         }
 
-        private string ConvertPaymentType(PaymentType paymentType)
-        {
-            return paymentType switch
-            {
-                PaymentType.CreditCard => ResourceReportGenerationMessages.CREDIT_CARD,
-                PaymentType.DebitCard => ResourceReportGenerationMessages.DEBIT_CARD,
-                PaymentType.EletronicTransfer => ResourceReportGenerationMessages.ELETRONIC_TRANSFER,
-                PaymentType.Cash => ResourceReportGenerationMessages.CASH,
-                _ => string.Empty
-            };
-        }
-
-        private void InsertHeader(IXLWorksheet worksheet)
+        private static void InsertHeader(IXLWorksheet worksheet)
         {
             worksheet.Cell("A1").Value = ResourceReportGenerationMessages.TITLE;
             worksheet.Cell("B1").Value = ResourceReportGenerationMessages.DATE;
