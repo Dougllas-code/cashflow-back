@@ -10,7 +10,7 @@ namespace CashFlow.Api.Filters
     {
         public void OnException(ExceptionContext context)
         {
-            if(context.Exception is CashFlowException)
+            if (context.Exception is CashFlowException)
             {
                 HandleProjectException(context);
             }
@@ -22,20 +22,11 @@ namespace CashFlow.Api.Filters
 
         private static void HandleProjectException(ExceptionContext context)
         {
-            if (context.Exception is ErrorOnValidationException ex)
-            {
-                var response = new ErrorsResponse(ex.Messages);
+            var cashFlowException = (CashFlowException)context.Exception;
+            var response = new ErrorsResponse(cashFlowException.GetErrors());
 
-                context.HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-                context.Result = new BadRequestObjectResult(response);
-            }
-            else
-            {
-                var response = new ErrorsResponse(context.Exception.Message);
-
-                context.HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-                context.Result = new BadRequestObjectResult(response);
-            }
+            context.HttpContext.Response.StatusCode = cashFlowException.StatusCode;
+            context.Result = new ObjectResult(response);
         }
 
         private static void ThrowUnkowError(ExceptionContext context)
