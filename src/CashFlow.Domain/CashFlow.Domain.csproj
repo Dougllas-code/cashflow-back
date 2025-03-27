@@ -7,17 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Remove="Resources\Report\ResourceReportGenerationMessages.pt-BR.resx" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Resources\Report\ResourceReportGenerationMessages.pt-BR.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>ResourceReportGenerationMessages.Designer.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Update="Resources\Report\ResourceReportGenerationMessages.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
