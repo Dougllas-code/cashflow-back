@@ -8,7 +8,7 @@ using CashFlow.Exception.BaseExceptions;
 
 namespace CashFlow.Application.UseCases.Expenses.Register
 {
-    public class RegisterExpenseUseCase : IRegisterExpenseUseCase
+    internal class RegisterExpenseUseCase : IRegisterExpenseUseCase
     {
 
         private readonly IExpensesWriteOnlyRepository _repository;
@@ -42,8 +42,8 @@ namespace CashFlow.Application.UseCases.Expenses.Register
             var result = new ExpenseValidator().Validate(request);
             if (!result.IsValid)
             {
-                var errorMessages = result.Errors.Select(error => error.ErrorMessage).ToList();
-                throw new ErrorOnValidationException(errorMessages);
+                    var errorMessages = result.Errors.Select(error => error.ErrorMessage).ToList();
+                    throw new ErrorOnValidationException(errorMessages);
             }
         }
     }
