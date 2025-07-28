@@ -2,7 +2,7 @@
 
 namespace CashFlow.Domain.Repositories.Expenses
 {
-    public interface IUpdateOnlyExpenseRepository
+    public interface IExpensesUpdateOnlyRepository
     {
         void Update(Expense expense);
 

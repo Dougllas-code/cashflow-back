@@ -9,12 +9,12 @@ namespace CashFlow.Application.UseCases.Expenses.Update
 {
     public class UpdateExpenseUseCase : IUpdateExpenseUseCase
     {
-        private readonly IUpdateOnlyExpenseRepository _repository;
+        private readonly IExpensesUpdateOnlyRepository _repository;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
 
         public UpdateExpenseUseCase(
-            IUpdateOnlyExpenseRepository repository,
+            IExpensesUpdateOnlyRepository repository,
             IMapper mapper,
             IUnitOfWork unitOfWork)
         {
