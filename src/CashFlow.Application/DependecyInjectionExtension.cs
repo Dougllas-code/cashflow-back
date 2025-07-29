@@ -6,6 +6,7 @@ using CashFlow.Application.UseCases.Expenses.Register;
 using CashFlow.Application.UseCases.Expenses.Report.Excel;
 using CashFlow.Application.UseCases.Expenses.Report.PDF;
 using CashFlow.Application.UseCases.Expenses.Update;
+using CashFlow.Application.UseCases.Login.DoLogin;
 using CashFlow.Application.UseCases.User.Register;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -41,6 +42,10 @@ namespace CashFlow.Application
 
             #region User
             services.AddScoped<IRegisterUserUseCase, RegisterUserUseCase>();
+            #endregion
+
+            #region Login
+            services.AddScoped<ILoginUseCase, LoginUseCase>();
             #endregion
         }
     }
