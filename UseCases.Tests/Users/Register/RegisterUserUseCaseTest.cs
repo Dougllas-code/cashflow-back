@@ -1,4 +1,6 @@
 ﻿using CashFlow.Application.UseCases.User.Register;
+using CashFlow.Exception;
+using CashFlow.Exception.BaseExceptions;
 using CommonTestUtilities.Cryptography;
 using CommonTestUtilities.Mapper;
 using CommonTestUtilities.Repositories;
@@ -26,16 +28,56 @@ namespace UseCases.Tests.Users.Register
             Assert.NotEmpty(result.Token);
         }
 
-        private static RegisterUserUseCase CreateUseCase()
+        [Fact]
+        public async Task Error_Name_Empty()
         {
-            var mapper = MapperBuilder.Build(); 
+            //Arrange
+            var request = RegisterUserRequestBuilder.Build();
+            request.Name = string.Empty;
+
+            var useCase = CreateUseCase();
+
+            //Act
+            var exception = await Assert.ThrowsAsync<ErrorOnValidationException>(() => useCase.Execute(request));
+
+            //Assert
+            Assert.NotNull(exception);
+            Assert.Contains(ResourceErrorMessages.NAME_EMPTY, exception.GetErrors());
+            Assert.Single(exception.GetErrors());
+        }
+
+        [Fact]
+        public async Task Error_Email_Already_Exist()
+        {
+            //Arrange
+            var request = RegisterUserRequestBuilder.Build();
+
+            var useCase = CreateUseCase(request.Email);
+
+            //Act
+            var exception = await Assert.ThrowsAsync<ErrorOnValidationException>(() => useCase.Execute(request));
+
+            //Assert
+            Assert.NotNull(exception);
+            Assert.Contains(ResourceErrorMessages.EMAIL_ALREADY_REGISTERED, exception.GetErrors());
+            Assert.Single(exception.GetErrors());
+        }
+
+        private static RegisterUserUseCase CreateUseCase(string? email = null)
+        {
+            var mapper = MapperBuilder.Build();
             var unitOfWork = UnitOfWorkBuilder.Build();
             var writeOnlyRepository = UserWriteOnlyRepositoryBuilder.Build();
             var passwordEncripter = PasswordEncripterBuilder.Build();
             var tokenGenerator = JwtTokenGeneratorBuilder.Build();
-            var readOnlyRepository = new UserReadOnlyRepositoryBuilder().Build();
+            var readOnlyRepository = new UserReadOnlyRepositoryBuilder();
 
-            return new RegisterUserUseCase(mapper, passwordEncripter, readOnlyRepository, writeOnlyRepository, unitOfWork, tokenGenerator);
+            if (!string.IsNullOrWhiteSpace(email))
+            {
+                readOnlyRepository.ExistActiveUserWithEmail(email);
+            }
+
+            return new RegisterUserUseCase(mapper, passwordEncripter, readOnlyRepository.Build(), writeOnlyRepository, unitOfWork, tokenGenerator);
         }
     }
 }
