@@ -25,7 +25,7 @@ namespace CashFlow.Application.UseCases.Expenses.Register
             _mapper = mapper;
         }
 
-        public async Task<RegisterExpenseResponse> Execute(ExpenseRequest request)
+        public async Task<RegisterExpenseResponse> Execute(ExpenseRequest request )
         {
             ValidateRequest(request);
 
