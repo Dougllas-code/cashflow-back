@@ -26,6 +26,8 @@ namespace CashFlow.Application.UseCases.Login.DoLogin
 
         public async Task<RegisterUserResponse> Execute(LoginRequest request)
         {
+            Validate(request);
+
             var user = await _userReadOnlyRepository.GetUserByEmail(request.Email);
 
             if (user is null)
@@ -45,6 +47,17 @@ namespace CashFlow.Application.UseCases.Login.DoLogin
                 Name = user.Name,
                 Token = _accessTokenGenerator.Generate(user)
             };
+        }
+
+        private static void Validate(LoginRequest request)
+        {
+           var result = new LoginValidator().Validate(request);
+
+            if (!result.IsValid)
+            {
+                var errors = result.Errors.Select(e => e.ErrorMessage).ToList();
+                throw new ErrorOnValidationException(errors);
+            }
         }
     }
 }

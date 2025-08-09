@@ -3,7 +3,7 @@ using CashFlow.Communication.Requests;
 
 namespace CommonTestUtilities.Requests
 {
-    public class RegisterUserRequestBuilder
+    public static class RegisterUserRequestBuilder
     {
         public static UserRequest Build()
         {
