@@ -13,7 +13,7 @@ namespace CommonTestUtilities.Entities.User
             return new Faker<CashFlow.Domain.Entities.User>()
                 .RuleFor(x => x.Id, _ => 1)
                 .RuleFor(x => x.Name, f => f.Person.FirstName)
-                .RuleFor(x => x.Email, (f, user) => f.Internet.Email(user.Email))
+                .RuleFor(x => x.Email, (f, user) => f.Internet.Email(user.Name))
                 .RuleFor(x => x.Password, (_, user) => passwordEncripter.Encrypt(user.Password))
                 .RuleFor(x => x.UserIdentifier, _ => Guid.NewGuid())
                 .RuleFor(x => x.Role, f => Roles.TEAM_MEMBER)
