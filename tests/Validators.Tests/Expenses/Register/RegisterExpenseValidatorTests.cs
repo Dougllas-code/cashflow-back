@@ -1,6 +1,7 @@
 ﻿using CashFlow.Application.UseCases.Expenses;
 using CashFlow.Communication.Enums;
 using CashFlow.Exception;
+using CommonTestUtilities.InlineData;
 using CommonTestUtilities.Requests;
 
 namespace Validators.Tests.Expenses.Register
@@ -22,9 +23,7 @@ namespace Validators.Tests.Expenses.Register
         }
 
         [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData(" ")]
+        [ClassData(typeof(InvalidStringInlineData))]
         public void ErrorTitleEmpty(string title)
         {
             //Arrange
