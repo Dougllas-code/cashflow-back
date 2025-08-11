@@ -5,6 +5,7 @@ using CashFlow.Domain.Security.Criptography;
 using CashFlow.Domain.Security.Tokens;
 using CashFlow.Infra.DataAccess;
 using CashFlow.Infra.DataAccess.Repositories;
+using CashFlow.Infra.Extensios;
 using CashFlow.Infra.Security.Tokens;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -16,11 +17,15 @@ namespace CashFlow.Infra
     {
         public static void AddInfraStructure(this IServiceCollection services, IConfiguration configuration)
         {
-            AddDbContext(services, configuration);
             AddToken(services, configuration);
             AddRepositories(services);
 
             services.AddScoped<IPasswordEncripter, Security.Cryptography.BCrypt>();
+
+            if (!configuration.IsTestEnviroment())
+            {
+                AddDbContext(services, configuration);
+            }
         }
 
         private static void AddToken(IServiceCollection services, IConfiguration configuration)
@@ -28,7 +33,7 @@ namespace CashFlow.Infra
             var expirationInMinutes = configuration.GetValue<uint>("Settings:Jwt:ExpiresMinutes");
             var signingKey = configuration.GetValue<string>("Settings:Jwt:SigningKey");
 
-            services.AddScoped<IAccessTokenGenerator>(config => new JwtTokenGenerator(expirationInMinutes, signingKey!));  
+            services.AddScoped<IAccessTokenGenerator>(config => new JwtTokenGenerator(expirationInMinutes, signingKey!));
         }
 
         private static void AddRepositories(IServiceCollection services)
@@ -50,7 +55,7 @@ namespace CashFlow.Infra
         private static void AddDbContext(IServiceCollection services, IConfiguration configuration)
         {
             var connectionString = configuration.GetConnectionString("Connection");
-            var serverVersion = new MySqlServerVersion(new Version(9, 2, 0));
+            var serverVersion = ServerVersion.AutoDetect(connectionString);
 
             services.AddDbContext<CashFlowDbContext>(config => config.UseMySql(connectionString, serverVersion));
         }
