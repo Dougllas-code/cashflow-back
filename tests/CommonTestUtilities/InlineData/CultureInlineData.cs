@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace WebApi.Tests.InlineData
+namespace CommonTestUtilities.InlineData
 {
     public class CultureInlineData : IEnumerable<object[]>
     {
@@ -11,6 +11,9 @@ namespace WebApi.Tests.InlineData
             yield return new object[] { "pt-BR" };
         }
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
     }
 }

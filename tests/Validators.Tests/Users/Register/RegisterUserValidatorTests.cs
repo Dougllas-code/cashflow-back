@@ -1,5 +1,6 @@
 ﻿using CashFlow.Application.UseCases.User;
 using CashFlow.Exception;
+using CommonTestUtilities.InlineData;
 using CommonTestUtilities.Requests;
 
 namespace Validators.Tests.Users.Register
@@ -21,9 +22,7 @@ namespace Validators.Tests.Users.Register
         }
 
         [Theory]
-        [InlineData("")]
-        [InlineData("      ")]
-        [InlineData(null)]
+        [ClassData(typeof(InvalidStringInlineData))]
         public void Error_Name_Invalid(string name)
         {
             //Arrange
@@ -40,9 +39,7 @@ namespace Validators.Tests.Users.Register
         }
 
         [Theory]
-        [InlineData("")]
-        [InlineData("      ")]
-        [InlineData(null)]
+        [ClassData(typeof(InvalidStringInlineData))]
         public void Error_Email_Empty(string email)
         {
             //Arrange
