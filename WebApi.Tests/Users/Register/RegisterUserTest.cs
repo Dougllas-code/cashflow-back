@@ -10,8 +10,9 @@ namespace WebApi.Tests.Users.Register
 {
     public class RegisterUserTest : IClassFixture<CustomWebApplicationFactory>
     {
-        private readonly HttpClient _httpClient;
         private const string METHOD = "api/User";
+
+        private readonly HttpClient _httpClient;
 
         public RegisterUserTest(CustomWebApplicationFactory webApplicationFactory)
         {

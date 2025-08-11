@@ -10,7 +10,7 @@ namespace CommonTestUtilities.Cryptography
         public PasswordEncripterBuilder()
         {
             _mock = new Mock<IPasswordEncripter>();
-            _mock.Setup(config => config.Encrypt(It.IsAny<string>())).Returns("!$%#@fsdkjfb3263");
+            _mock.Setup(config => config.Encrypt(It.IsAny<string>())).Returns("Senha1234.");
         }
 
         public PasswordEncripterBuilder Verify(string? password)
