@@ -6,6 +6,6 @@ namespace CashFlow.Domain.Repositories.Expenses
     {
         void Update(Expense expense);
 
-        Task<Expense?> GetById(long id);
+        Task<Expense?> GetById(Entities.User user, long id);
     }
 }
