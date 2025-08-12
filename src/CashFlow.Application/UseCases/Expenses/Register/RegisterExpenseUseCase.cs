@@ -4,6 +4,7 @@ using CashFlow.Communication.Responses.Expenses;
 using CashFlow.Domain.Entities;
 using CashFlow.Domain.Repositories;
 using CashFlow.Domain.Repositories.Expenses;
+using CashFlow.Domain.Services.LoggedUser;
 using CashFlow.Exception.BaseExceptions;
 
 namespace CashFlow.Application.UseCases.Expenses.Register
@@ -14,27 +15,33 @@ namespace CashFlow.Application.UseCases.Expenses.Register
         private readonly IExpensesWriteOnlyRepository _repository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ILoggedUser _loggedUser;
 
         public RegisterExpenseUseCase(
             IExpensesWriteOnlyRepository repository, 
             IUnitOfWork unitOfWork,
-            IMapper mapper)
+            IMapper mapper,
+            ILoggedUser loggedUser)
         {
             _repository = repository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _loggedUser = loggedUser;
         }
 
         public async Task<RegisterExpenseResponse> Execute(ExpenseRequest request )
         {
             ValidateRequest(request);
 
-            var entity = _mapper.Map<Expense>(request);
+            var loggedUser = await _loggedUser.Get();
 
-            await _repository.Add(entity);
+            var expense = _mapper.Map<Expense>(request);
+            expense.UserId = loggedUser.Id;
+
+            await _repository.Add(expense);
             await _unitOfWork.Commit();
 
-            return _mapper.Map<RegisterExpenseResponse>(entity);
+            return _mapper.Map<RegisterExpenseResponse>(expense);
         }
 
         private static void ValidateRequest(ExpenseRequest request)

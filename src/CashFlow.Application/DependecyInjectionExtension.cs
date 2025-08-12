@@ -8,6 +8,7 @@ using CashFlow.Application.UseCases.Expenses.Report.PDF;
 using CashFlow.Application.UseCases.Expenses.Update;
 using CashFlow.Application.UseCases.Login.DoLogin;
 using CashFlow.Application.UseCases.User.Register;
+using CashFlow.Domain.Services.LoggedUser;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CashFlow.Application
@@ -27,7 +28,7 @@ namespace CashFlow.Application
 
         private static void AddUseCases(IServiceCollection services)
         {
-            #region Register
+            #region Expenses
             services.AddScoped<IRegisterExpenseUseCase, RegisterExpenseUseCase>();
             services.AddScoped<IGetAllExpensesUseCase, GetAllExpensesUseCase>();
             services.AddScoped<IGetByIdUseCase, GetByIdUseCase>();
