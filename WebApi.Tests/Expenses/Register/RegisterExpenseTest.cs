@@ -6,69 +6,71 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 
-namespace WebApi.Tests.Users.Register
+namespace WebApi.Tests.Expenses.Register
 {
-    public class RegisterUserTest : IClassFixture<CustomWebApplicationFactory>
+    public class RegisterExpenseTest: IClassFixture<CustomWebApplicationFactory>
     {
-        private const string METHOD = "api/User";
+        private const string METHOD = "api/Expenses";
 
         private readonly HttpClient _httpClient;
+        private readonly string _token;
 
-        public RegisterUserTest(CustomWebApplicationFactory webApplicationFactory)
+        public RegisterExpenseTest(CustomWebApplicationFactory webApplicationFactory)
         {
             _httpClient = webApplicationFactory.CreateClient();
+            _token = webApplicationFactory.GetToken();
         }
 
         [Fact]
         public async Task Success()
         {
-            //Arrange
-            var request = RegisterUserRequestBuilder.Build();
+            // Arrange
+            var request = RegisterExpenseRequestBuilder.Build();
 
-            //Act
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+
+            // Act
             var result = await _httpClient.PostAsJsonAsync(METHOD, request);
 
-            //Assert
+            // Assert
             Assert.Equal(System.Net.HttpStatusCode.Created, result.StatusCode);
 
             var responseBody = await result.Content.ReadAsStreamAsync();
             var responseData = await JsonDocument.ParseAsync(responseBody);
 
-            var responseName = responseData.RootElement.GetProperty("name").GetString();
-            var token = responseData.RootElement.GetProperty("token").GetString();
+            var title = responseData.RootElement.GetProperty("title").GetString();
 
             Assert.NotNull(responseData);
-            Assert.NotNull(responseName);
-            Assert.NotEmpty(responseName);
-            Assert.Equal(request.Name, responseName);
-            Assert.NotNull(token);
-            Assert.NotEmpty(token);
+            Assert.NotNull(title);
+            Assert.NotEmpty(title);
+            Assert.Equal(request.Title, title);
         }
 
         [Theory]
         [ClassData(typeof(CultureInlineData))]
         public async Task Bad_Request(string culture)
         {
-            //Arrange
-            var request = RegisterUserRequestBuilder.Build();
-            request.Name = string.Empty;
-            
-            _httpClient.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue(culture));
+            // Arrange
+            var request = RegisterExpenseRequestBuilder.Build();
+            request.Title = string.Empty;
 
-            //Act
+            _httpClient.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue(culture));
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+
+            // Act
             var result = await _httpClient.PostAsJsonAsync(METHOD, request);
 
-            //Assert
+            // Assert
             Assert.Equal(System.Net.HttpStatusCode.BadRequest, result.StatusCode);
 
             var responseBody = await result.Content.ReadAsStreamAsync();
             var responseData = await JsonDocument.ParseAsync(responseBody);
 
             var errors = responseData.RootElement.GetProperty("message").EnumerateArray()
-                .Select(e => e.GetString())
-                .ToList();
+               .Select(e => e.GetString())
+               .ToList();
 
-            var expectedErrorMessage = ResourceErrorMessages.ResourceManager.GetString("NAME_EMPTY", new CultureInfo(culture));
+            var expectedErrorMessage = ResourceErrorMessages.ResourceManager.GetString("TITLE_REQUIRED", new CultureInfo(culture));
 
             Assert.NotNull(responseData);
             Assert.NotEmpty(errors);
