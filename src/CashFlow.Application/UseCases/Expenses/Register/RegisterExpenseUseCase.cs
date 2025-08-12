@@ -9,7 +9,7 @@ using CashFlow.Exception.BaseExceptions;
 
 namespace CashFlow.Application.UseCases.Expenses.Register
 {
-    internal class RegisterExpenseUseCase : IRegisterExpenseUseCase
+    public class RegisterExpenseUseCase : IRegisterExpenseUseCase
     {
 
         private readonly IExpensesWriteOnlyRepository _repository;
