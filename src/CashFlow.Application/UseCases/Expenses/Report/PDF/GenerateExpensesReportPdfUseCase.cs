@@ -3,6 +3,7 @@ using CashFlow.Application.UseCases.Expenses.Report.PDF.Fonts;
 using CashFlow.Domain.Extensions;
 using CashFlow.Domain.Repositories.Expenses;
 using CashFlow.Domain.Resources.Report;
+using CashFlow.Domain.Services.LoggedUser;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
@@ -16,27 +17,32 @@ namespace CashFlow.Application.UseCases.Expenses.Report.PDF
         private const string CURRENCY_SYMBOL = "€";
         private const int HEIGHT= 25;
         private readonly IExpensesReadOnlyRepository _repository;
+        private readonly ILoggedUser _loggedUser;
 
-        public GenerateExpensesReportPdfUseCase(IExpensesReadOnlyRepository repository)
+        public GenerateExpensesReportPdfUseCase(
+            IExpensesReadOnlyRepository repository,
+            ILoggedUser loggedUser)
         {
             _repository = repository;
             GlobalFontSettings.FontResolver = new ExpensesReportFontResolver();
+            _loggedUser = loggedUser;
         }
 
         public async Task<byte[]> Execute(DateOnly month)
         {
-            var expenses = await _repository.GetByMonth(month);
+            var loggedUser = await _loggedUser.Get();
+            var expenses = await _repository.GetByMonth(loggedUser, month);
 
             if (expenses.Count == 0)
             {
                 return [];
             }
 
-            var document = CreateDocument(month);
+            var document = CreateDocument(loggedUser.Name, month);
             var page = CreatePage(document);
 
             // header
-            CreateHeaderWithImage(page);
+            CreateHeaderWithImage(loggedUser.Name, page);
 
             // total spent   
             var totalExpenses = expenses.Sum(e => e.Amount);
@@ -89,11 +95,11 @@ namespace CashFlow.Application.UseCases.Expenses.Report.PDF
             return RenderDocument(document);
         }
 
-        private static Document CreateDocument(DateOnly month)
+        private static Document CreateDocument(string author, DateOnly month)
         {
             var document = new Document();
             document.Info.Title = $"{ResourceReportGenerationMessages.EXPENSES_FOR} {month:Y}";
-            document.Info.Author = "CashFlow";
+            document.Info.Author = author;
 
             var styles = document.Styles["Normal"];
             styles!.Font.Name = FontHelper.RALEWAY_REGULAR;
@@ -115,7 +121,7 @@ namespace CashFlow.Application.UseCases.Expenses.Report.PDF
             return section;
         }
 
-        private void CreateHeaderWithImage(Section page)
+        private void CreateHeaderWithImage(string user, Section page)
         {
             var table = page.AddTable();
             table.AddColumn();
@@ -128,7 +134,7 @@ namespace CashFlow.Application.UseCases.Expenses.Report.PDF
             var pathFile = Path.Combine(directoryName!, "UseCases", "Expenses", "Report", "PDF", "Logo", "user.png");
 
             row.Cells[0].AddImage(pathFile);
-            row.Cells[1].AddParagraph("Hello user");
+            row.Cells[1].AddParagraph($"Hello, {user}");
             row.Cells[1].Format.Font = new Font { Name = FontHelper.RALEWAY_BLACK, Size = 16 };
             row.Cells[1].VerticalAlignment = VerticalAlignment.Center;
         }
