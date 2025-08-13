@@ -2,22 +2,18 @@
 using CommonTestUtilities.InlineData;
 using CommonTestUtilities.Requests;
 using System.Globalization;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace WebApi.Tests.Expenses.Register
 {
-    public class RegisterExpenseTest: IClassFixture<CustomWebApplicationFactory>
+    public class RegisterExpenseTest: CashFlowClassFixture
     {
         private const string METHOD = "api/Expenses";
 
-        private readonly HttpClient _httpClient;
         private readonly string _token;
 
-        public RegisterExpenseTest(CustomWebApplicationFactory webApplicationFactory)
+        public RegisterExpenseTest(CustomWebApplicationFactory webApplicationFactory): base(webApplicationFactory)
         {
-            _httpClient = webApplicationFactory.CreateClient();
             _token = webApplicationFactory.GetToken();
         }
 
@@ -27,10 +23,8 @@ namespace WebApi.Tests.Expenses.Register
             // Arrange
             var request = RegisterExpenseRequestBuilder.Build();
 
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-
             // Act
-            var result = await _httpClient.PostAsJsonAsync(METHOD, request);
+            var result = await DoPost(METHOD, request, _token);
 
             // Assert
             Assert.Equal(System.Net.HttpStatusCode.Created, result.StatusCode);
@@ -54,11 +48,8 @@ namespace WebApi.Tests.Expenses.Register
             var request = RegisterExpenseRequestBuilder.Build();
             request.Title = string.Empty;
 
-            _httpClient.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue(culture));
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-
             // Act
-            var result = await _httpClient.PostAsJsonAsync(METHOD, request);
+            var result = await DoPost(METHOD, request, _token, culture);
 
             // Assert
             Assert.Equal(System.Net.HttpStatusCode.BadRequest, result.StatusCode);
