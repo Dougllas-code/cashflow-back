@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace WebApi.Tests
 {
-    public class CustomWebApplicationFactory: WebApplicationFactory<Program>
+    public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
         private CashFlow.Domain.Entities.User _user;
         private string _password;
@@ -23,7 +23,7 @@ namespace WebApi.Tests
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.UseEnvironment("Testing")
-                .ConfigureServices(services => 
+                .ConfigureServices(services =>
                 {
                     var provider = services.AddEntityFrameworkInMemoryDatabase().BuildServiceProvider();
 
@@ -46,13 +46,29 @@ namespace WebApi.Tests
 
         private void StartDatabase(CashFlowDbContext dbContext, IPasswordEncripter passwordEncripter)
         {
+            InsertUser(dbContext, passwordEncripter);
+            InsertExpenses(dbContext);
+
+            dbContext.SaveChanges();
+        }
+
+
+        private void InsertUser(CashFlowDbContext dbContext, IPasswordEncripter passwordEncripter)
+        {
             _user = UserBuilder.Build();
             _password = _user.Password;
 
             _user.Password = passwordEncripter.Encrypt(_user.Password);
 
             dbContext.Users.Add(_user);
-            dbContext.SaveChanges();
+            
+        }
+
+        private void InsertExpenses(CashFlowDbContext dbContext)
+        {
+            var expenses = ExpenseBuilder.Collection(_user);
+
+            dbContext.Expenses.AddRange(expenses);
         }
     }
 }
