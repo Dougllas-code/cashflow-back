@@ -11,6 +11,6 @@ namespace CashFlow.Domain.Repositories.Expenses
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public Task<bool> Delete(long id);
+        public Task Delete(long id);
     }
 }

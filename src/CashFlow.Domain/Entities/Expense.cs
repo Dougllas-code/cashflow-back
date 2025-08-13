@@ -11,5 +11,7 @@ namespace CashFlow.Domain.Entities
         public decimal Amount { get; set; }
         public PaymentType PaymentType { get; set; }
 
+        public long UserId { get; set; }
+        public User User { get; set; } = default!;
     }
 }
