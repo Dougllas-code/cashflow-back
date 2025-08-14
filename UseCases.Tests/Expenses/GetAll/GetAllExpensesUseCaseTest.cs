@@ -35,7 +35,7 @@ namespace UseCases.Tests.Expenses.GetAll
             });
         }
 
-        private GetAllExpensesUseCase CreateUseCase(User user, List<Expense> expenses) 
+        private static GetAllExpensesUseCase CreateUseCase(User user, List<Expense> expenses) 
         { 
             var repository = new ExpensesReadOnlyRepositoryBuilder().GetAll(user, expenses).Build();
             var mapper = MapperBuilder.Build();
