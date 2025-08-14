@@ -1,4 +1,5 @@
-﻿using CashFlow.Domain.Security.Criptography;
+﻿using CashFlow.Domain.Entities;
+using CashFlow.Domain.Security.Criptography;
 using CashFlow.Domain.Security.Tokens;
 using CashFlow.Infra.DataAccess;
 using CommonTestUtilities.Entities.User;
@@ -11,7 +12,8 @@ namespace WebApi.Tests
 {
     public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
-        private CashFlow.Domain.Entities.User _user;
+        private Expense _expense;
+        private User _user;
         private string _password;
         private string _token;
 
@@ -19,6 +21,7 @@ namespace WebApi.Tests
         public string GetName() => _user.Name;
         public string GetPassword() => _password;
         public string GetToken() => _token;
+        public long GetExpenseId() => _expense.Id;
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
@@ -67,6 +70,7 @@ namespace WebApi.Tests
         private void InsertExpenses(CashFlowDbContext dbContext)
         {
             var expenses = ExpenseBuilder.Collection(_user);
+            _expense = expenses.FirstOrDefault()!;
 
             dbContext.Expenses.AddRange(expenses);
         }
