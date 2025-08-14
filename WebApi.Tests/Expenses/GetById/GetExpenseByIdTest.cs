@@ -1,4 +1,8 @@
 ﻿using CashFlow.Domain.Enums;
+using CashFlow.Exception;
+using CommonTestUtilities.InlineData;
+using CommonTestUtilities.Requests;
+using System.Globalization;
 using System.Text.Json;
 
 namespace WebApi.Tests.Expenses.GetById
@@ -37,6 +41,31 @@ namespace WebApi.Tests.Expenses.GetById
 
             var paymentTypeValue = responseData.RootElement.GetProperty("paymentType").GetInt32();
             Assert.True(Enum.IsDefined(typeof(PaymentType), paymentTypeValue));
+        }
+
+        [Theory]
+        [ClassData(typeof(CultureInlineData))]
+        public async Task Not_found(string culture)
+        {
+            // Act
+            var result = await DoGet($"{METHOD}/{10000}", _token, culture);
+
+            // Assert
+            Assert.Equal(System.Net.HttpStatusCode.NotFound, result.StatusCode);
+
+            var responseBody = await result.Content.ReadAsStreamAsync();
+            var responseData = await JsonDocument.ParseAsync(responseBody);
+
+            var errors = responseData.RootElement.GetProperty("message").EnumerateArray()
+               .Select(e => e.GetString())
+               .ToList();
+
+            var expectedErrorMessage = ResourceErrorMessages.ResourceManager.GetString("EXPENSE_NOT_FOUND", new CultureInfo(culture));
+
+            Assert.NotNull(responseData);
+            Assert.NotEmpty(errors);
+            Assert.Single(errors);
+            Assert.Equal(expectedErrorMessage, errors.FirstOrDefault());
         }
     }
 }
