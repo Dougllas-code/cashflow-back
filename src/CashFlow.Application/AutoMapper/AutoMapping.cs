@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CashFlow.Communication.Requests;
 using CashFlow.Communication.Responses.Expenses;
+using CashFlow.Communication.Responses.User;
 using CashFlow.Domain.Entities;
 
 namespace CashFlow.Application.AutoMapper
@@ -24,6 +25,7 @@ namespace CashFlow.Application.AutoMapper
             CreateMap<Expense, RegisterExpenseResponse>();
             CreateMap<Expense, ExpenseShortResponse>();
             CreateMap<Expense, ExpenseResponse>();
+            CreateMap<User, UserProfileResponse>();
         }   
     }
 }
