@@ -87,7 +87,7 @@ namespace WebApi.Tests
 
             var token = tokenGenerator.Generate(user);
 
-            User_Team_Member = new UserIdentityManager(user, password, token);
+            User_Admin = new UserIdentityManager(user, password, token);
             return user;
         }
 
