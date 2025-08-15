@@ -18,7 +18,7 @@ namespace UseCases.Tests.Expenses.Register
         {
             // Arrange
             var user = UserBuilder.Build();
-            var request = RegisterExpenseRequestBuilder.Build();
+            var request = ExpenseRequestBuilder.Build();
             var useCase = CreateUseCase(user);
 
             // Act
@@ -35,7 +35,7 @@ namespace UseCases.Tests.Expenses.Register
         {
             // Arrange
             var user = UserBuilder.Build();
-            var request = RegisterExpenseRequestBuilder.Build();
+            var request = ExpenseRequestBuilder.Build();
             request.Title = title;
 
             var useCase = CreateUseCase(user);
