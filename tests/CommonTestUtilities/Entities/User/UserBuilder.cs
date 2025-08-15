@@ -4,9 +4,9 @@ using CommonTestUtilities.Cryptography;
 
 namespace CommonTestUtilities.Entities.User
 {
-    public static class UserBuilder
+    public class UserBuilder
     {
-        public static CashFlow.Domain.Entities.User Build()
+        public static CashFlow.Domain.Entities.User Build(string role = Roles.TEAM_MEMBER)
         {
             var passwordEncripter = new PasswordEncripterBuilder().Build();
 
@@ -16,7 +16,7 @@ namespace CommonTestUtilities.Entities.User
                 .RuleFor(x => x.Email, (f, user) => f.Internet.Email(user.Name))
                 .RuleFor(x => x.Password, (_, user) => passwordEncripter.Encrypt(user.Password))
                 .RuleFor(x => x.UserIdentifier, _ => Guid.NewGuid())
-                .RuleFor(x => x.Role, f => Roles.TEAM_MEMBER)
+                .RuleFor(x => x.Role, _ => role)
                 .Generate();
         }
     }
