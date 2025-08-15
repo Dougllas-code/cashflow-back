@@ -63,6 +63,21 @@ namespace WebApi.Tests
             return user;
         }
 
+        private User InsertUserAdmin(CashFlowDbContext dbContext, IPasswordEncripter passwordEncripter, IAccessTokenGenerator tokenGenerator)
+        {
+             var user = UserBuilder.Build();
+             var password = user.Password;
+
+            user.Password = passwordEncripter.Encrypt(user.Password);
+
+            dbContext.Users.Add(user);
+
+            var token = tokenGenerator.Generate(user);
+
+            User_Team_Member = new UserIdentityManager(user, password, token);
+            return user;
+        }
+
         private void InsertExpenses(CashFlowDbContext dbContext, User user)
         {
             var expenses = ExpenseBuilder.Collection(user); 

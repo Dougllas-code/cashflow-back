@@ -27,6 +27,12 @@ namespace CommonTestUtilities.Repositories
             return this;
         }
 
+        public ExpensesReadOnlyRepositoryBuilder GetByMonth(User user, List<Expense> expenses)
+        {
+            _repositoryMock.Setup(repo => repo.GetByMonth(user, It.IsAny<DateOnly>())).ReturnsAsync(expenses);
+            return this;
+        }
+
         public IExpensesReadOnlyRepository Build() => _repositoryMock.Object;
     }
 }
