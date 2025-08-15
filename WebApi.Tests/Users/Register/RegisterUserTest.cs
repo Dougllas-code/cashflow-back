@@ -9,7 +9,6 @@ namespace WebApi.Tests.Users.Register
     public class RegisterUserTest : CashFlowClassFixture
     {
         private const string METHOD = "api/User";
-
         public RegisterUserTest(CustomWebApplicationFactory webApplicationFactory) : base(webApplicationFactory) { }
 
         [Fact]
