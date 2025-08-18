@@ -120,6 +120,9 @@
   <data name="AMOUNT_MUST_BE_GREATER_THAN_ZERO" xml:space="preserve">
     <value>Amount must be greater than 0.</value>
   </data>
+  <data name="CURRENT_PASSWORD_INCORRECT" xml:space="preserve">
+    <value>Current password incorrect.</value>
+  </data>
   <data name="EMAIL_ALREADY_REGISTERED" xml:space="preserve">
     <value>This email is already in use.</value>
   </data>
