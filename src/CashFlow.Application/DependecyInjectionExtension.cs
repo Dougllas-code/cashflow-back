@@ -7,9 +7,10 @@ using CashFlow.Application.UseCases.Expenses.Report.Excel;
 using CashFlow.Application.UseCases.Expenses.Report.PDF;
 using CashFlow.Application.UseCases.Expenses.Update;
 using CashFlow.Application.UseCases.Login.DoLogin;
+using CashFlow.Application.UseCases.User.ChangePassword;
 using CashFlow.Application.UseCases.User.GetProfile;
 using CashFlow.Application.UseCases.User.Register;
-using CashFlow.Domain.Services.LoggedUser;
+using CashFlow.Application.UseCases.User.Update;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CashFlow.Application
@@ -45,6 +46,8 @@ namespace CashFlow.Application
             #region User
             services.AddScoped<IRegisterUserUseCase, RegisterUserUseCase>();
             services.AddScoped<IGetUserProfileUseCase, GetUserProfileUseCase>();
+            services.AddScoped<IUpdateUserUseCase, UpdateUserUseCase>();
+            services.AddScoped<IChangePasswordUseCase, ChangePasswordUseCase>();
             #endregion
 
             #region Login
