@@ -15,7 +15,7 @@ namespace CommonTestUtilities.Cryptography
 
         public PasswordEncripterBuilder Verify(string? password)
         {
-            _mock.Setup(config => config.Verify(password ?? It.IsAny<string>(), It.IsAny<string>())).Returns(!string.IsNullOrEmpty(password));
+            _mock.Setup(config => config.Verify(password ?? It.IsAny<string>(), It.IsAny<string>())).Returns(!string.IsNullOrWhiteSpace(password));
             return this;
         }
 
