@@ -18,6 +18,13 @@ namespace CashFlow.Infra.DataAccess.Repositories
            await _dbContext.Users.AddAsync(user);
         }
 
+        public async Task Delete(User user)
+        {
+            var result = await _dbContext.Users.FirstAsync(u => u.Id == user.Id);
+
+            _dbContext.Users.Remove(result);
+        }
+
         public async Task<bool> ExistActiveUserWithEmail(string email)
         {
            return await _dbContext.Users.AnyAsync(user => user.Email.Equals(email));
