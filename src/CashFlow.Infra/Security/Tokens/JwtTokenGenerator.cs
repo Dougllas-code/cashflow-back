@@ -40,6 +40,30 @@ namespace CashFlow.Infra.Security.Tokens
             return tokenHandler.WriteToken(securityToken);
         }
 
+        public bool IsValid(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = SecurityKey(),
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero,
+                ValidateIssuer = false,
+                ValidateAudience = false,
+            };
+
+            try
+            {
+                tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+                return validatedToken != null;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         private SymmetricSecurityKey SecurityKey()
         {
             var key = Encoding.UTF8.GetBytes(_signingKey);
