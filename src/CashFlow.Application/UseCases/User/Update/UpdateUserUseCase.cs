@@ -43,11 +43,6 @@ namespace CashFlow.Application.UseCases.User.Update
             await _unitOfWork.Commit();
         }
 
-        public async Task GetById(long id)
-        {
-            throw new NotImplementedException();
-        }
-
         private async Task Validate(UpdateUserRequest request, string currentEmail)
         {
             var result = new UpdateUserValidator().Validate(request);
