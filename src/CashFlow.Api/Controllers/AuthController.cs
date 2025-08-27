@@ -10,7 +10,7 @@ namespace CashFlow.Api.Controllers
     [Authorize]
     public class AuthController : ControllerBase
     {
-        [HttpPost("validate-token")]
+        [HttpGet("validate-token")]
         [ProducesResponseType(typeof(CheckTokenResponse), StatusCodes.Status200OK)]
         public IActionResult ValidateToken(
             [FromServices] ICheckTokenUseCase useCase)
