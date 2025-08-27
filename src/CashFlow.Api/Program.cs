@@ -4,9 +4,12 @@ using CashFlow.Api.Token;
 using CashFlow.Application;
 using CashFlow.Domain.Security.Tokens;
 using CashFlow.Infra;
+using CashFlow.Infra.DataAccess;
 using CashFlow.Infra.Extensios;
 using CashFlow.Infra.Migrations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -86,7 +89,20 @@ builder.Services.AddAuthentication(config =>
     };
 });
 
+builder.Services.AddHealthChecks().AddDbContextCheck<CashFlowDbContext>();
+
 var app = builder.Build();
+
+// Configure health checks
+app.MapHealthChecks("/Health", new HealthCheckOptions 
+{
+    AllowCachingResponses = false,
+    ResultStatusCodes =
+    {
+        [HealthStatus.Healthy] = StatusCodes.Status200OK,
+        [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
+    }
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -106,6 +122,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Apply database migrations
 if (!builder.Configuration.IsTestEnviroment())
 {
     await MigrateDatabase();
@@ -113,6 +130,7 @@ if (!builder.Configuration.IsTestEnviroment())
 
 app.Run();
 
+// Method to apply database migrations
 async Task MigrateDatabase()
 {
     await using var scope = app.Services.CreateAsyncScope();

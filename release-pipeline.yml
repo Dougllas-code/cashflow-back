@@ -1,0 +1,35 @@
+trigger:
+- master
+
+variables:
+  dockerRegistryServiceConnection: 'da01c8eb-3d6a-4139-b1c9-2d3fe0ba65f9'
+  imageRepository: 'apicashflow'
+  containerRegistry: 'apicashflow.azurecr.io'
+  dockerfilePath: 'Dockerfile'
+  tag: '$(Build.BuildId)'
+
+  vmImageName: 'ubuntu-latest'
+
+pool:
+  vmImage: $(vmImageName)
+
+steps:
+- task: DownloadSecureFile@1
+  name: appsettings
+  displayName: Download AppSettings Json
+  inputs:
+    secureFile: appsettings.Production.json
+
+- script: |
+    cp $(appsettings.secureFilePath) src/CashFlow.Api/appsettings.Production.json
+
+- task: Docker@2
+  displayName: Build and push an image to container registry
+  inputs:
+    command: buildAndPush
+    repository: $(imageRepository)
+    dockerfile: $(dockerfilePath)
+    containerRegistry: $(dockerRegistryServiceConnection)
+    tags: |
+      latest
+      $(tag)
