@@ -5,5 +5,6 @@ namespace CashFlow.Domain.Security.Tokens
     public interface IAccessTokenGenerator
     {
         string Generate(User user);
+        bool IsValid(string token);
     }
 }

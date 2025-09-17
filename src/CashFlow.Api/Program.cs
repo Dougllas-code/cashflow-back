@@ -1,4 +1,5 @@
 using CashFlow.Api.Filters;
+using CashFlow.Api.HubMethods;
 using CashFlow.Api.Middleware;
 using CashFlow.Api.Token;
 using CashFlow.Application;
@@ -87,9 +88,24 @@ builder.Services.AddAuthentication(config =>
         ClockSkew = new TimeSpan(0),
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey!))
     };
+    config.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/SessionHub"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddHealthChecks().AddDbContextCheck<CashFlowDbContext>();
+
+builder.Services.AddSignalR(options => options.EnableDetailedErrors = true);
 
 var app = builder.Build();
 
@@ -121,6 +137,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<SessionHub>("/SessionHub").RequireAuthorization();
 
 // Apply database migrations
 if (!builder.Configuration.IsTestEnviroment())

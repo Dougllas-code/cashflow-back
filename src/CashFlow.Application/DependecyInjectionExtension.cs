@@ -1,4 +1,5 @@
 ﻿using CashFlow.Application.AutoMapper;
+using CashFlow.Application.UseCases.CheckToken;
 using CashFlow.Application.UseCases.Expenses.Delete;
 using CashFlow.Application.UseCases.Expenses.GetAll;
 using CashFlow.Application.UseCases.Expenses.GetById;
@@ -54,6 +55,10 @@ namespace CashFlow.Application
 
             #region Login
             services.AddScoped<ILoginUseCase, LoginUseCase>();
+            #endregion
+
+            #region Token
+            services.AddScoped<ICheckTokenUseCase, CheckTokenUseCase>();
             #endregion
         }
     }
