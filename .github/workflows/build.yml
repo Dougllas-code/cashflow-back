@@ -1,13 +1,8 @@
 name: Build & Run Tests CashFlow API
 
 on:
-  push:
-    branches:
-      - dev
-      - master
-    paths:
-      - 'src/**'
-      - 'tests/**'
+  pull_request:
+    branches: [ dev, master ]
 
 jobs:
   build:
