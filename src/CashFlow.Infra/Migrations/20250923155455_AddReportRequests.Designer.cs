@@ -4,6 +4,7 @@ using CashFlow.Infra.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,13 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CashFlow.Infra.Migrations
 {
     [DbContext(typeof(CashFlowDbContext))]
-    partial class CashFlowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250923155455_AddReportRequests")]
+    partial class AddReportRequests
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.13")
+                .HasAnnotation("ProductVersion", "8.0.19")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
@@ -99,9 +102,6 @@ namespace CashFlow.Infra.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<Guid>("Guid")
-                        .HasColumnType("char(36)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -114,12 +114,26 @@ namespace CashFlow.Infra.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<Guid>("UserIdentifier")
+                        .HasColumnType("char(36)");
+
                     b.HasKey("Id");
 
-                    b.ToTable("User");
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("CashFlow.Domain.Entities.Expense", b =>
+                {
+                    b.HasOne("CashFlow.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CashFlow.Domain.Entities.ReportRequests", b =>
                 {
                     b.HasOne("CashFlow.Domain.Entities.User", "User")
                         .WithMany()

@@ -150,6 +150,9 @@
   <data name="PAYMENT_TYPE_INVALID" xml:space="preserve">
     <value>Payment type is not valid.</value>
   </data>
+  <data name="SERVICE_BUS_UNAVAILABLE" xml:space="preserve">
+    <value>Service bus currently unavailable</value>
+  </data>
   <data name="TITLE_REQUIRED" xml:space="preserve">
     <value>Title is required.</value>
   </data>

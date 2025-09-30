@@ -150,6 +150,9 @@
   <data name="PAYMENT_TYPE_INVALID" xml:space="preserve">
     <value>O tipo de pagamento não é válido.</value>
   </data>
+  <data name="SERVICE_BUS_UNAVAILABLE" xml:space="preserve">
+    <value>Serviço de mensageria indisponível.</value>
+  </data>
   <data name="TITLE_REQUIRED" xml:space="preserve">
     <value>Titulo é obrigatório.</value>
   </data>

@@ -1,82 +1,70 @@
-﻿using CashFlow.Domain.Extensions;
+﻿using CashFlow.Domain.Entities;
+using CashFlow.Domain.Enums;
+using CashFlow.Domain.Repositories;
 using CashFlow.Domain.Repositories.Expenses;
-using CashFlow.Domain.Resources.Report;
+using CashFlow.Domain.Repositories.ReportRequest;
 using CashFlow.Domain.Services.LoggedUser;
-using ClosedXML.Excel;
 
 namespace CashFlow.Application.UseCases.Expenses.Report.Excel
 {
     public class GenerateExpensesReportExcelUseCase : IGenerateExpensesReportExcelUseCase
     {
-        private const string CURRENCY_SYMBOL = "€";
         private readonly IExpensesReadOnlyRepository _repository;
         private readonly ILoggedUser _loggedUser;
+        private readonly IReportRequestRepository _reportRequestRepository;
+        private readonly IMessageBus _messageBus;    
+        private readonly IUnitOfWork _unitOfWork;    
 
         public GenerateExpensesReportExcelUseCase(
             IExpensesReadOnlyRepository repository,
-            ILoggedUser loggedUser)
+            ILoggedUser loggedUser,
+            IReportRequestRepository reportRequestRepository,
+            IMessageBus messageBus,
+            IUnitOfWork unitOfWork)
         {
             _repository = repository;
             _loggedUser = loggedUser;
+            _reportRequestRepository = reportRequestRepository;
+            _messageBus = messageBus;
+            _unitOfWork = unitOfWork;
         }
 
-        public async Task<byte[]> Execute(DateOnly month)
+        public async Task<ReportRequests?> Execute(DateOnly month)
         {
             var loggedUser = await _loggedUser.Get();
 
             var expenses = await _repository.GetByMonth(loggedUser, month);
+
             if (expenses.Count == 0)
             {
-                return [];
+                return null;
             }
 
-            using var workbook = new XLWorkbook();
-
-            workbook.Author = loggedUser.Name;
-
-            var worksheet = workbook.Worksheets.Add(month.ToString("Y"));
-            InsertHeader(worksheet);
-
-            var row = 2;
-            foreach (var expense in expenses) 
+            var reportRequest = new ReportRequests
             {
-                worksheet.Cell($"A{row}").Value = expense.Title;
-                worksheet.Cell($"B{row}").Value = expense.Date;
-                worksheet.Cell($"C{row}").Value = expense.PaymentType.PaymentTypeToString();
+                Id = Guid.NewGuid(),
+                UserId = loggedUser.Id,
+                Status = ReportStatus.PENDING,
+                Type = ReportType.EXCEL,
+                RequestDate = DateTime.UtcNow,
+                Month = month
+            };
 
-                worksheet.Cell($"D{row}").Value = expense.Amount;
-                worksheet.Cell($"D{row}").Style.NumberFormat.Format = $"-{CURRENCY_SYMBOL} #,##0.00";
+            await _reportRequestRepository.Create(reportRequest);
 
-                worksheet.Cell($"E{row}").Value = expense.Description;
+            var eventReportRequested = new EventReportRequested
+            {
+                Id = reportRequest.Id, 
+                UserId = loggedUser.Id, 
+                Month = reportRequest.Month,
+                ReportType = reportRequest.Type
+            };
 
-                row++;
-            }
+            await _messageBus.PublishAsync(eventReportRequested);
 
-            worksheet.Columns().AdjustToContents();
+            await _unitOfWork.Commit();
 
-            var file = new MemoryStream();
-            workbook.SaveAs(file);
-
-            return file.ToArray();
-        }
-
-        private static void InsertHeader(IXLWorksheet worksheet)
-        {
-            worksheet.Cell("A1").Value = ResourceReportGenerationMessages.TITLE;
-            worksheet.Cell("B1").Value = ResourceReportGenerationMessages.DATE;
-            worksheet.Cell("C1").Value = ResourceReportGenerationMessages.PAYMENT_TYPE;
-            worksheet.Cell("D1").Value = ResourceReportGenerationMessages.AMOUNT;
-            worksheet.Cell("E1").Value = ResourceReportGenerationMessages.DESCRIPTION;
-
-            worksheet.Cells("A1:E1").Style.Font.Bold = true;
-            worksheet.Cells("A1:E1").Style.Fill.BackgroundColor = XLColor.LightGray;
-
-            worksheet.Cell("A1").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-            worksheet.Cell("B1").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-            worksheet.Cell("C1").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-            worksheet.Cell("E1").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
-
-            worksheet.Cell("D1").Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Right);
+            return reportRequest;
         }
     }
 

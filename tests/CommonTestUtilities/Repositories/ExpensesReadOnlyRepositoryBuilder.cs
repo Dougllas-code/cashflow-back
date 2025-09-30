@@ -21,7 +21,7 @@ namespace CommonTestUtilities.Repositories
 
         public ExpensesReadOnlyRepositoryBuilder GetById(User user, Expense? expense)
         {
-            if(expense is not null)
+            if (expense is not null)
                 _repositoryMock.Setup(repo => repo.GetById(user, expense.Id)).ReturnsAsync(expense);
 
             return this;
@@ -30,6 +30,7 @@ namespace CommonTestUtilities.Repositories
         public ExpensesReadOnlyRepositoryBuilder GetByMonth(User user, List<Expense> expenses)
         {
             _repositoryMock.Setup(repo => repo.GetByMonth(user, It.IsAny<DateOnly>())).ReturnsAsync(expenses);
+
             return this;
         }
 

@@ -19,11 +19,11 @@ namespace CashFlow.Api.Controllers
             [FromServices] IGenerateExpensesReportExcelUseCase useCase,
             [FromQuery] DateOnly month) 
         {
-            byte[] file = await useCase.Execute(month);
+            var response = await useCase.Execute(month);
 
-            if (file.Length > 0)
+            if (response is not null)
             {
-                return File(file, MediaTypeNames.Application.Octet, "report.xlsx");
+                return Ok(response);
             }
 
             return NoContent();
