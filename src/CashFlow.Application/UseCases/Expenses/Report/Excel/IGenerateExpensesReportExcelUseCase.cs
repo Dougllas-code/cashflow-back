@@ -1,7 +1,9 @@
-﻿namespace CashFlow.Application.UseCases.Expenses.Report.Excel
+﻿using CashFlow.Domain.Entities;
+
+namespace CashFlow.Application.UseCases.Expenses.Report.Excel
 {
     public interface IGenerateExpensesReportExcelUseCase
     {
-        Task<byte[]> Execute(DateOnly month);
+        Task<ReportRequests?> Execute(DateOnly month);
     }
 }

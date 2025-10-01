@@ -1,13 +1,16 @@
 ﻿using CashFlow.Domain.Entities;
 using CashFlow.Domain.Enums;
+using CashFlow.Domain.Repositories.ReportRequest;
 using CashFlow.Domain.Security.Criptography;
 using CashFlow.Domain.Security.Tokens;
 using CashFlow.Infra.DataAccess;
 using CommonTestUtilities.Entities.User;
+using CommonTestUtilities.Repositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using WebApi.Tests.Resources;
 
 namespace WebApi.Tests
@@ -22,6 +25,12 @@ namespace WebApi.Tests
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.UseEnvironment("Testing")
+                .ConfigureLogging(logging =>
+                {
+                    // Remove all providers and add only the Console logger (or others you want)
+                    logging.ClearProviders();
+                    logging.AddConsole();
+                })
                 .ConfigureServices(services =>
                 {
                     var provider = services.AddEntityFrameworkInMemoryDatabase().BuildServiceProvider();
@@ -37,8 +46,14 @@ namespace WebApi.Tests
                     var passwordEncripter = scope.ServiceProvider.GetRequiredService<IPasswordEncripter>();
                     var tokenGenerator = scope.ServiceProvider.GetRequiredService<IAccessTokenGenerator>();
 
+                    AddFakeRepositories(services);
                     StartDatabase(dbContext, passwordEncripter, tokenGenerator);
                 });
+        }
+
+        private static void AddFakeRepositories(IServiceCollection services)
+        {
+            services.AddScoped<IMessageBus, FakeMessageBus>();
         }
 
         private void StartDatabase(CashFlowDbContext dbContext, IPasswordEncripter passwordEncripter, IAccessTokenGenerator tokenGenerator)
