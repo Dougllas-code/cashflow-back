@@ -25,7 +25,7 @@ namespace CashFlow.Infra
             services.AddScoped<ILoggedUser, LoggedUser>();
 
             AddToken(services, configuration);
-            AddRepositories(services);
+            AddRepositories(services, configuration);
             AddMassTransit(services, configuration);
 
             if (!configuration.IsTestEnviroment())
@@ -42,7 +42,7 @@ namespace CashFlow.Infra
             services.AddScoped<IAccessTokenGenerator>(config => new JwtTokenGenerator(expirationInMinutes, signingKey!));
         }
 
-        private static void AddRepositories(IServiceCollection services)
+        private static void AddRepositories(IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -60,7 +60,10 @@ namespace CashFlow.Infra
 
             #region Report Request
             services.AddScoped<IReportRequestRepository, ReportRequestRepository>();
-            services.AddScoped<IMessageBus, ReportRequestRepository>();
+            if (!configuration.IsTestEnviroment())
+            {
+                services.AddScoped<IMessageBus, ReportRequestRepository>();
+            }
             #endregion
         }
 
