@@ -1,5 +1,7 @@
 ﻿using System.Net;
 using System.Net.Mime;
+using System.Text.Json;
+using static MassTransit.ValidationResultExtensions;
 
 namespace WebApi.Tests.Expenses.Reports
 {
@@ -29,8 +31,11 @@ namespace WebApi.Tests.Expenses.Reports
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.NotNull(response.Content.Headers.ContentType);
-            Assert.Equal(MediaTypeNames.Application.Octet, response.Content.Headers.ContentType!.MediaType);
+
+            var responseBody = await response.Content.ReadAsStreamAsync();
+            var responseData = await JsonDocument.ParseAsync(responseBody);
+
+            Assert.NotNull(responseData);
         }
 
         [Fact]

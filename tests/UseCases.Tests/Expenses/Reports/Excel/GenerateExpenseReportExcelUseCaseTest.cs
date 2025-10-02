@@ -24,7 +24,6 @@ namespace UseCases.Tests.Expenses.Reports.Excel
 
             // Assert
             Assert.NotNull(result);
-            Assert.IsType<byte[]>(result);
         }
 
         [Fact]
@@ -32,9 +31,8 @@ namespace UseCases.Tests.Expenses.Reports.Excel
         {
             // Arrange
             var user = UserBuilder.Build();
-            var expenses = new List<Expense>();
 
-            var useCase = CreateUseCase(user, expenses);
+            var useCase = CreateUseCase(user, []);
 
             var month = DateOnly.FromDateTime(DateTime.Today);
 
@@ -42,17 +40,18 @@ namespace UseCases.Tests.Expenses.Reports.Excel
             var result = await useCase.Execute(month);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.Empty(result);
-            Assert.IsType<byte[]>(result);
+            Assert.Null(result);
         }
 
         private static GenerateExpensesReportExcelUseCase CreateUseCase(User user, List<Expense> expenses)
         {
             var repository = new ExpensesReadOnlyRepositoryBuilder().GetByMonth(user, expenses).Build();
             var loggedUser = LoggedUserBuilder.Build(user);
+            var reportRequestRepository = ReportRequestRepositoryBuilder.Build();
+            var messageBus = MessageBusBuilder.Build();
+            var unitOfWork = UnitOfWorkBuilder.Build();
 
-            return new GenerateExpensesReportExcelUseCase(repository, loggedUser);
+            return new GenerateExpensesReportExcelUseCase(repository, loggedUser, reportRequestRepository, messageBus, unitOfWork);
         }
     }
 }
