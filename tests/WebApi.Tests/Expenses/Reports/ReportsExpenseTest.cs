@@ -1,7 +1,9 @@
-﻿using System.Net;
+﻿using CashFlow.Communication.Enums;
+using CashFlow.Communication.Requests;
+using CommonTestUtilities.Requests;
+using System.Net;
 using System.Net.Mime;
 using System.Text.Json;
-using static MassTransit.ValidationResultExtensions;
 
 namespace WebApi.Tests.Expenses.Reports
 {
@@ -24,10 +26,14 @@ namespace WebApi.Tests.Expenses.Reports
         public async Task Get_Excel_Success()
         {
             // Arrange
-            var month = DateOnly.FromDateTime(_expenseDate);
+            var request = new ReportRequest
+            {
+                Month = DateOnly.FromDateTime(_expenseDate),
+                ReportType = ReportType.EXCEL
+            };
 
             // Act
-            var response = await DoGet($"{METHOD}/excel?month={month:yyyy-MM-dd}", _adminToken);
+            var response = await DoPost($"{METHOD}", request, _adminToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -36,70 +42,67 @@ namespace WebApi.Tests.Expenses.Reports
             var responseData = await JsonDocument.ParseAsync(responseBody);
 
             Assert.NotNull(responseData);
+
+            var reportTypeNumber = responseData.RootElement.GetProperty("type").GetInt32();
+            var reportTypeEnum = (ReportType)reportTypeNumber;
+            Assert.Equal(ReportType.EXCEL, reportTypeEnum);
         }
 
         [Fact]
         public async Task Get_PDF_Success()
         {
             // Arrange
-            var month = DateOnly.FromDateTime(_expenseDate);
+            var request = new ReportRequest
+            {
+                Month = DateOnly.FromDateTime(_expenseDate),
+                ReportType = ReportType.PDF
+            };
 
             // Act
-            var response = await DoGet($"{METHOD}/pdf?month={month:yyyy-MM-dd}", _adminToken);
+            var response = await DoPost($"{METHOD}", request, _adminToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.NotNull(response.Content.Headers.ContentType);
-            Assert.Equal(MediaTypeNames.Application.Pdf, response.Content.Headers.ContentType!.MediaType);
+
+            var responseBody = await response.Content.ReadAsStreamAsync();
+            var responseData = await JsonDocument.ParseAsync(responseBody);
+
+            Assert.NotNull(responseData);
+
+            var reportTypeNumber = responseData.RootElement.GetProperty("type").GetInt32();
+            var reportTypeEnum = (ReportType)reportTypeNumber;
+            Assert.Equal(ReportType.PDF, reportTypeEnum);
         }
 
         [Fact]
-        public async Task Error_Forbidden_User_Not_Allowed_Excel()
+        public async Task Error_Forbidden_User_Not_Allowed()
         {
             // Arrange
-            var month = DateOnly.FromDateTime(_expenseDate);
+            var request = new ReportRequest
+            {
+                Month = DateOnly.FromDateTime(_expenseDate),
+                ReportType = ReportType.EXCEL
+            };
 
             // Act
-            var response = await DoGet($"{METHOD}/excel?month={month:yyyy-MM-dd}", _teamMemberToken);
+            var response = await DoPost($"{METHOD}", request, _teamMemberToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         }
 
         [Fact]
-        public async Task Error_Forbidden_User_Not_Allowed_PDF()
+        public async Task Get_Success_No_Content()
         {
             // Arrange
-            var month = DateOnly.FromDateTime(_expenseDate);
+            var request = new ReportRequest
+            {
+                Month = DateOnly.FromDateTime(DateTime.Today.Date.AddDays(5)),
+                ReportType = ReportType.EXCEL
+            };
 
             // Act
-            var response = await DoGet($"{METHOD}/pdf?month={month:yyyy-MM-dd}", _teamMemberToken);
-
-            // Assert
-            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
-        }
-
-        [Fact]
-        public async Task Get_Excel_Success_No_Content()
-        {
-            // Arrange
-            var month = DateOnly.FromDateTime(DateTime.Today.Date.AddDays(5));
-
-            // Act
-            var response = await DoGet($"{METHOD}/excel?month={month:yyyy-MM-dd}", _adminToken);
-
-            // Assert
-            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
-        }
-
-        [Fact]
-        public async Task Get_PDF_Success_No_Content()
-        {
-            // Arrange
-            var month = DateOnly.FromDateTime(DateTime.Today.Date.AddDays(5));
-
-            // Act
-            var response = await DoGet($"{METHOD}/pdf?month={month:yyyy-MM-dd}", _adminToken);
+            var response = await DoPost($"{METHOD}", request, _adminToken);
 
             // Assert
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);

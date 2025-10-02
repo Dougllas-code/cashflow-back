@@ -1,9 +1,9 @@
-﻿using CashFlow.Application.UseCases.Expenses.Report.Excel;
-using CashFlow.Application.UseCases.Expenses.Report.PDF;
+﻿using CashFlow.Application.UseCases.Expenses.Report;
+using CashFlow.Communication.Requests;
+using CashFlow.Communication.Responses.Expenses;
 using CashFlow.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Mime;
 
 namespace CashFlow.Api.Controllers
 {
@@ -12,14 +12,14 @@ namespace CashFlow.Api.Controllers
     [Authorize(Roles = Roles.ADMIN)]
     public class ReportController : ControllerBase
     {
-        [HttpGet("excel")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpPost]
+        [ProducesResponseType(typeof(RegisterExpenseResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> GetExcel(
-            [FromServices] IGenerateExpensesReportExcelUseCase useCase,
-            [FromQuery] DateOnly month) 
+            [FromServices] IGenerateExpensesReportUseCase useCase,
+            [FromBody] ReportRequest request) 
         {
-            var response = await useCase.Execute(month);
+            var response = await useCase.Execute(request);
 
             if (response is not null)
             {
@@ -27,26 +27,6 @@ namespace CashFlow.Api.Controllers
             }
 
             return NoContent();
-
         }
-
-        [HttpGet("pdf")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> GetPdf(
-            [FromServices] IGenerateExpensesReportPdfUseCase useCase,
-            [FromQuery] DateOnly month)
-        {
-            byte[] file = await useCase.Execute(month);
-
-            if (file.Length > 0)
-            {
-                return File(file, MediaTypeNames.Application.Pdf, "report.pdf");
-            }
-
-            return NoContent();
-
-        }
-
     }
 }
