@@ -4,8 +4,7 @@ using CashFlow.Application.UseCases.Expenses.Delete;
 using CashFlow.Application.UseCases.Expenses.GetAll;
 using CashFlow.Application.UseCases.Expenses.GetById;
 using CashFlow.Application.UseCases.Expenses.Register;
-using CashFlow.Application.UseCases.Expenses.Report.Excel;
-using CashFlow.Application.UseCases.Expenses.Report.PDF;
+using CashFlow.Application.UseCases.Expenses.Report;
 using CashFlow.Application.UseCases.Expenses.Update;
 using CashFlow.Application.UseCases.Login.DoLogin;
 using CashFlow.Application.UseCases.User.ChangePassword;
@@ -41,8 +40,7 @@ namespace CashFlow.Application
             #endregion
 
             #region Reports
-            services.AddScoped<IGenerateExpensesReportExcelUseCase, GenerateExpensesReportExcelUseCase>();
-            services.AddScoped<IGenerateExpensesReportPdfUseCase, GenerateExpensesReportPdfUseCase>();
+            services.AddScoped<IGenerateExpensesReportUseCase, GenerateExpensesReportUseCase>();
             #endregion
 
             #region User

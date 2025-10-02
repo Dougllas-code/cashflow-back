@@ -1,13 +1,14 @@
-﻿using CashFlow.Domain.Entities;
+﻿using CashFlow.Communication.Requests;
+using CashFlow.Domain.Entities;
 using CashFlow.Domain.Enums;
 using CashFlow.Domain.Repositories;
 using CashFlow.Domain.Repositories.Expenses;
 using CashFlow.Domain.Repositories.ReportRequest;
 using CashFlow.Domain.Services.LoggedUser;
 
-namespace CashFlow.Application.UseCases.Expenses.Report.Excel
+namespace CashFlow.Application.UseCases.Expenses.Report
 {
-    public class GenerateExpensesReportExcelUseCase : IGenerateExpensesReportExcelUseCase
+    public class GenerateExpensesReportUseCase : IGenerateExpensesReportUseCase
     {
         private readonly IExpensesReadOnlyRepository _repository;
         private readonly ILoggedUser _loggedUser;
@@ -15,7 +16,7 @@ namespace CashFlow.Application.UseCases.Expenses.Report.Excel
         private readonly IMessageBus _messageBus;    
         private readonly IUnitOfWork _unitOfWork;    
 
-        public GenerateExpensesReportExcelUseCase(
+        public GenerateExpensesReportUseCase(
             IExpensesReadOnlyRepository repository,
             ILoggedUser loggedUser,
             IReportRequestRepository reportRequestRepository,
@@ -29,11 +30,11 @@ namespace CashFlow.Application.UseCases.Expenses.Report.Excel
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<ReportRequests?> Execute(DateOnly month)
+        public async Task<ReportRequests?> Execute(ReportRequest request)
         {
             var loggedUser = await _loggedUser.Get();
 
-            var expenses = await _repository.GetByMonth(loggedUser, month);
+            var expenses = await _repository.GetByMonth(loggedUser, request.Month);
 
             if (expenses.Count == 0)
             {
@@ -45,9 +46,9 @@ namespace CashFlow.Application.UseCases.Expenses.Report.Excel
                 Id = Guid.NewGuid(),
                 UserId = loggedUser.Id,
                 Status = ReportStatus.PENDING,
-                Type = ReportType.EXCEL,
+                Type = (ReportType)request.ReportType,
                 RequestDate = DateTime.UtcNow,
-                Month = month
+                Month = request.Month
             };
 
             await _reportRequestRepository.Create(reportRequest);

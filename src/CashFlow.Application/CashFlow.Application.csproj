@@ -7,20 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="UseCases\Expenses\Report\PDF\Fonts\Raleway-Black.ttf" />
-    <None Remove="UseCases\Expenses\Report\PDF\Fonts\Raleway-Regular.ttf" />
-    <None Remove="UseCases\Expenses\Report\PDF\Fonts\WorkSans-Black.ttf" />
-    <None Remove="UseCases\Expenses\Report\PDF\Fonts\WorkSans-Regular.ttf" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="UseCases\Expenses\Report\PDF\Fonts\Raleway-Black.ttf" />
-    <EmbeddedResource Include="UseCases\Expenses\Report\PDF\Fonts\Raleway-Regular.ttf" />
-    <EmbeddedResource Include="UseCases\Expenses\Report\PDF\Fonts\WorkSans-Black.ttf" />
-    <EmbeddedResource Include="UseCases\Expenses\Report\PDF\Fonts\WorkSans-Regular.ttf" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="14.0.0" />
     <PackageReference Include="ClosedXML" Version="0.104.2" />
     <PackageReference Include="FluentValidation" Version="11.11.0" />
@@ -32,12 +18,6 @@
     <ProjectReference Include="..\CashFlow.Communication\CashFlow.Communication.csproj" />
     <ProjectReference Include="..\CashFlow.Domain\CashFlow.Domain.csproj" />
     <ProjectReference Include="..\CashFlow.Exception\CashFlow.Exception.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="UseCases\Expenses\Report\PDF\Logo\user.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>
