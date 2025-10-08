@@ -6,6 +6,8 @@ using CommonTestUtilities.Mapper;
 using CommonTestUtilities.Repositories;
 using CommonTestUtilities.Requests;
 using CommonTestUtilities.Token;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace UseCases.Tests.Users.Register
 {
@@ -71,13 +73,14 @@ namespace UseCases.Tests.Users.Register
             var passwordEncripter = new PasswordEncripterBuilder();
             var tokenGenerator = JwtTokenGeneratorBuilder.Build();
             var readOnlyRepository = new UserReadOnlyRepositoryBuilder();
+            var logger = new Mock<ILogger<RegisterUserUseCase>>();
 
             if (!string.IsNullOrWhiteSpace(email))
             {
                 readOnlyRepository.ExistActiveUserWithEmail(email);
             }
 
-            return new RegisterUserUseCase(mapper, passwordEncripter.Build(), readOnlyRepository.Build(), writeOnlyRepository, unitOfWork, tokenGenerator);
+            return new RegisterUserUseCase(mapper, passwordEncripter.Build(), readOnlyRepository.Build(), writeOnlyRepository, unitOfWork, tokenGenerator, logger.Object);
         }
     }
 }
