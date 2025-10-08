@@ -8,6 +8,7 @@ using CashFlow.Domain.Security.Tokens;
 using CashFlow.Exception;
 using CashFlow.Exception.BaseExceptions;
 using FluentValidation.Results;
+using Microsoft.Extensions.Logging;
 
 namespace CashFlow.Application.UseCases.User.Register
 {
@@ -19,6 +20,7 @@ namespace CashFlow.Application.UseCases.User.Register
         private readonly IUserWriteOnlyRepository _userWriteOnlyRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IAccessTokenGenerator _accessTokenGenerator;
+        private readonly ILogger<RegisterUserUseCase> _logger;
 
         public RegisterUserUseCase(
             IMapper mapper,
@@ -26,7 +28,8 @@ namespace CashFlow.Application.UseCases.User.Register
             IUserReadOnlyRepository userReadOnlyRepository,
             IUserWriteOnlyRepository userWriteOnlyRepository,
             IUnitOfWork unitOfWork,
-            IAccessTokenGenerator accessTokenGenerator
+            IAccessTokenGenerator accessTokenGenerator,
+            ILogger<RegisterUserUseCase> logger
         )
         {
             _mapper = mapper;
@@ -35,18 +38,29 @@ namespace CashFlow.Application.UseCases.User.Register
             _userWriteOnlyRepository = userWriteOnlyRepository;
             _unitOfWork = unitOfWork;
             _accessTokenGenerator = accessTokenGenerator;
+            _logger = logger;
         }
 
         public async Task<RegisterUserResponse> Execute(UserRequest request)
         {
+            _logger.LogInformation("Starting user registration process for email: {Email}", request.Email);
+
             await Validate(request);
+            _logger.LogDebug("User registration validation passed for email: {Email}", request.Email);
 
             var user = _mapper.Map<Domain.Entities.User>(request);
             user.Password = _passwordEncripter.Encrypt(request.Password);
             user.UserIdentifier = Guid.NewGuid();
 
+            _logger.LogDebug("User entity created with UserIdentifier: {UserIdentifier} for email: {Email}", user.UserIdentifier, request.Email);
+
             await _userWriteOnlyRepository.Add(user);
+            _logger.LogDebug("User added to repository for email: {Email}", request.Email);
+
             await _unitOfWork.Commit();
+            _logger.LogDebug("User registration committed to database for email: {Email}", request.Email);
+
+            _logger.LogInformation("User registration successful for email: {Email}, UserID: {UserId}. Token generated.", request.Email, user.Id);
 
             return new RegisterUserResponse
             {
@@ -62,6 +76,7 @@ namespace CashFlow.Application.UseCases.User.Register
 
             if (emailExist)
             {
+                _logger.LogWarning("User registration failed - Email already exists: {Email}", request.Email);
                 result.Errors.Add(new ValidationFailure(
                     nameof(request.Email),
                     ResourceErrorMessages.EMAIL_ALREADY_REGISTERED
@@ -71,6 +86,8 @@ namespace CashFlow.Application.UseCases.User.Register
             if (!result.IsValid)
             {
                 var errorMessages = result.Errors.Select(error => error.ErrorMessage).ToList();
+                _logger.LogError("Validation error during user registration for email: {Email}. Errors: {ValidationErrors}", 
+                    request.Email, string.Join(", ", errorMessages));
                 throw new ErrorOnValidationException(errorMessages);
             }
         }

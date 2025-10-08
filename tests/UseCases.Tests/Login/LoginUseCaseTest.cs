@@ -7,6 +7,8 @@ using CommonTestUtilities.Entities.User;
 using CommonTestUtilities.Repositories;
 using CommonTestUtilities.Requests;
 using CommonTestUtilities.Token;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace UseCases.Tests.Login
 {
@@ -72,8 +74,9 @@ namespace UseCases.Tests.Login
             var userReadOnlyRepository = new UserReadOnlyRepositoryBuilder().GetUserByEmail(user).Build();
             var passwordEncripter = new PasswordEncripterBuilder().Verify(requestPassword).Build();
             var tokenGenerator = JwtTokenGeneratorBuilder.Build();
+            var logger = new Mock<ILogger<LoginUseCase>>();
 
-            return new LoginUseCase(userReadOnlyRepository, passwordEncripter, tokenGenerator);
+            return new LoginUseCase(userReadOnlyRepository, passwordEncripter, tokenGenerator, logger.Object);
         }
     }
 }
