@@ -73,7 +73,7 @@ builder.Services.AddScoped<ITokenProvider, HttpContextTokenValue>();
 builder.Services.AddHttpContextAccessor();
 
 // Configure authentication
-var signingKey = builder.Configuration.GetValue<string>("Settings:Jwt:SigningKey");
+var signingKey = Environment.GetEnvironmentVariable("JWT_SIGNING_KEY") ?? builder.Configuration.GetValue<string>("Settings:Jwt:SigningKey");
 
 builder.Services.AddAuthentication(config =>
 {
