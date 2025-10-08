@@ -37,7 +37,7 @@ namespace CashFlow.Infra
         private static void AddToken(IServiceCollection services, IConfiguration configuration)
         {
             var expirationInMinutes = configuration.GetValue<uint>("Settings:Jwt:ExpiresMinutes");
-            var signingKey = configuration.GetValue<string>("Settings:Jwt:SigningKey");
+            var signingKey = Environment.GetEnvironmentVariable("JWT_SIGNING_KEY") ?? configuration.GetValue<string>("Settings:Jwt:SigningKey");
 
             services.AddScoped<IAccessTokenGenerator>(config => new JwtTokenGenerator(expirationInMinutes, signingKey!));
         }
